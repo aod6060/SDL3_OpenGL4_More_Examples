@@ -9,7 +9,7 @@
 #include <glm/ext.hpp>
 
 
-std::string g_caption = "02_triangle";
+std::string g_caption = "03_colored_triangle";
 uint32_t g_width = 1280;
 uint32_t g_height = 720;
 
@@ -96,9 +96,13 @@ uint32_t main_u_view = 0;
 uint32_t main_u_model = 0;
 // Attributes
 const uint32_t MAIN_A_VERTICES = 0;
+const uint32_t MAIN_A_COLORS = 1;
 // Buffer
 std::vector<glm::vec3> vertices_list;
 uint32_t vertices_buffer = 0;
+// Colors Buffer
+std::vector<glm::vec4> colors_list;
+uint32_t colors_buffer = 0;
 
 uint32_t _create_shader(GLenum type, std::string path);
 uint32_t _create_program(std::vector<uint32_t> shaders);
@@ -124,6 +128,7 @@ void game_init() {
     // Setup Vertex Arrays
     glBindVertexArray(main_va);
     glEnableVertexAttribArray(MAIN_A_VERTICES);
+    glEnableVertexAttribArray(MAIN_A_COLORS);
     glBindVertexArray(0);
     glUseProgram(0);
 
@@ -138,6 +143,16 @@ void game_init() {
     glGenBuffers(1, &vertices_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertices_buffer);
     glBufferData(GL_ARRAY_BUFFER, vertices_list.size() * sizeof(glm::vec3), vertices_list.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    colors_list.clear();
+    colors_list.push_back(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    colors_list.push_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    colors_list.push_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+    glGenBuffers(1, &colors_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, colors_buffer);
+    glBufferData(GL_ARRAY_BUFFER, colors_list.size() * sizeof(glm::vec4), colors_list.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 }
@@ -175,6 +190,8 @@ void game_render() {
     glBindVertexArray(main_va);
     glBindBuffer(GL_ARRAY_BUFFER, vertices_buffer);
     glVertexAttribPointer(MAIN_A_VERTICES, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glBindBuffer(GL_ARRAY_BUFFER, colors_buffer);
+    glVertexAttribPointer(MAIN_A_COLORS, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glDrawArrays(GL_TRIANGLES, 0, vertices_list.size());
@@ -185,6 +202,7 @@ void game_render() {
 }
 
 void game_release() {
+    glDeleteBuffers(1, &colors_buffer);
     glDeleteBuffers(1, &vertices_buffer);
     vertices_list.clear();
     glDeleteVertexArrays(1, &main_va);
