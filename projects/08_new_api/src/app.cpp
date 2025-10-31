@@ -29,6 +29,8 @@ namespace app {
         g_context = SDL_GL_CreateContext(g_window);
         glewInit();
 
+        render::init();
+
         if(g_config->initCB) {
             g_config->initCB();
         }
@@ -73,6 +75,8 @@ namespace app {
             g_config->releaseCB();
         }
 
+        render::release();
+        
         SDL_GL_DestroyContext(g_context);
         SDL_DestroyWindow(g_window);
         SDL_Quit();
