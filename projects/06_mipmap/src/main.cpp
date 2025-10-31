@@ -10,7 +10,7 @@
 #include <glm/ext.hpp>
 
 
-std::string g_caption = "05_texture2D";
+std::string g_caption = "06_mipmap";
 uint32_t g_width = 1280;
 uint32_t g_height = 720;
 
@@ -368,7 +368,7 @@ uint32_t _create_texture2D(std::string path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
     glGenerateMipmap(GL_TEXTURE_2D);
-    
+
     glBindTexture(GL_TEXTURE_2D, 0);
 
     SDL_DestroySurface(surf);

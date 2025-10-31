@@ -3,14 +3,18 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl3.h"
+#include "imgui/imgui_impl_opengl3.h"
 
-std::string g_caption = "05_texture2D";
+std::string g_caption = "06_mipmap";
 uint32_t g_width = 1280;
 uint32_t g_height = 720;
 
@@ -125,7 +129,15 @@ uint32_t _create_program(std::vector<uint32_t> shaders);
 void _delete_program(uint32_t id, std::vector<uint32_t> shaders);
 uint32_t _create_texture2D(std::string path);
 
+void renderGUI(std::function<void()> callback);
+
 float yrot = 0.0f;
+
+
+bool rotateX = false;
+bool rotateY = true;
+bool rotateZ = false;
+glm::vec4 color = glm::vec4(glm::vec3(100.0f, 149.0f, 237.0f) / 255.0f, 1.0f);
 
 void game_init() {
     glEnable(GL_DEPTH_TEST);
@@ -206,10 +218,25 @@ void game_init() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     happyFaceTex = _create_texture2D("happyface.png");
+
+
+    // ImGui
+    IMGUI_CHECKVERSION();
+
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL3_InitForOpenGL(g_window, g_context);
+    ImGui_ImplOpenGL3_Init("#version 400");
+
+
 }
 
 void game_handleEvent(SDL_Event* e) {
-
+    ImGui_ImplSDL3_ProcessEvent(e);
 }
 
 void game_update(float delta) {
@@ -226,9 +253,8 @@ void game_render() {
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 model =
         glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) *
-        glm::rotate(glm::mat4(1.0f), glm::radians(yrot), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::rotate(glm::mat4(1.0f), glm::radians(yrot), glm::vec3((rotateX) ? 1.0f : 0.0f, (rotateY) ? 1.0f : 0.0f, (rotateZ) ? 1.0f : 0.0f));
 
-    glm::vec4 color = glm::vec4(glm::vec3(100.0f, 149.0f, 237.0f) / 255.0f, 1.0f);
     glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -261,9 +287,33 @@ void game_render() {
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
+
+
+
+    renderGUI([&]() {
+
+        ImGui::Begin("Hello, World");
+
+        if(ImGui::Button("Hello")) {
+            std::cout << "Hello, World\n";
+        }
+
+        ImGui::Checkbox("Rotate X", &rotateX);
+        ImGui::Checkbox("Rotate Y", &rotateY);
+        ImGui::Checkbox("Rotate Z", &rotateZ);
+
+        ImGui::ColorPicker4("Clear Color", &color[0]);
+        
+        ImGui::End();
+    });
+
 }
 
 void game_release() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+
     glDeleteTextures(1, &happyFaceTex);
     glDeleteBuffers(1, &index_buffer);
     glDeleteBuffers(1, &texCoords_id);
@@ -365,9 +415,22 @@ uint32_t _create_texture2D(std::string path) {
         surf->pixels);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
     glBindTexture(GL_TEXTURE_2D, 0);
 
     SDL_DestroySurface(surf);
     return temp;
+}
+
+void renderGUI(std::function<void()> callback) {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+    callback();
+    ImGui::EndFrame();
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
