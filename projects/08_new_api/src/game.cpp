@@ -18,6 +18,8 @@ namespace game {
     bool rotateY = true;
     bool rotateZ = false;
     glm::vec4 color = glm::vec4(glm::vec3(100.0f, 149.0f, 237.0f) / 255.0f, 1.0f);
+    
+    int i = 0;
 
     void init() {
         // Initialize Buffer + Textures

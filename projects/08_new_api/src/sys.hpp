@@ -360,6 +360,32 @@ namespace input {
     bool isGrab();
     void setGrab(bool grab);
     void toggleGrab();
+
+    namespace mapping {
+        struct Mapping {
+            bool isMouse = false;
+            Keyboard key;
+            MouseButtons mouseButton;
+        };
+
+        void createKeyboardMapping(Mapping* map, Keyboard keyboard);
+        void createMouseButtonMapping(Mapping* map, MouseButtons mouseButton);
+
+        bool isMappingReleased(Mapping* map);
+        bool isMappingPressedOnce(Mapping* map);
+        bool isMappingPressed(Mapping* map);
+        bool isMappingReleasedOnce(Mapping* map);
+
+        float getMappingReleasedValue(Mapping* map);
+        float getMappingPressedOnceValue(Mapping* map);
+        float getMappingPressedValue(Mapping* map);
+        float getMappingReleasedOnceValue(Mapping* map);
+
+        float getMappingReleasedAxis(Mapping* negative, Mapping* positive);
+        float getMappingPressedOnceAxis(Mapping* negative, Mapping* positive);
+        float getMappingPressedAxis(Mapping* negative, Mapping* positive);
+        float getMappingReleasedOnceAxis(Mapping* negative, Mapping* positive);
+    }
 }
 
 namespace render {

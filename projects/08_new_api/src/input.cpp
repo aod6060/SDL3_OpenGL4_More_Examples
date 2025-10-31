@@ -194,4 +194,68 @@ namespace input {
         setGrab(!isGrab());
     }
 
+
+
+    namespace mapping {
+        void createKeyboardMapping(Mapping* map, Keyboard keyboard) {
+            map->isMouse = false;
+            map->key = keyboard;
+        }
+
+        void createMouseButtonMapping(Mapping* map, MouseButtons mouseButton) {
+            map->isMouse = true;
+            map->mouseButton = mouseButton;
+        }
+
+        bool isMappingReleased(Mapping* map) {
+            return (map->isMouse) ? isMouseButtonReleased(map->mouseButton) : isKeyReleased(map->key);
+        }
+
+        bool isMappingPressedOnce(Mapping* map) {
+            return (map->isMouse) ? isMouseButtonPressedOnce(map->mouseButton) : isKeyPressedOnce(map->key);
+        }
+
+        bool isMappingPressed(Mapping* map) {
+            return (map->isMouse) ? isMouseButtonPressed(map->mouseButton) : isKeyPressed(map->key);
+        }
+
+        bool isMappingReleasedOnce(Mapping* map) {
+            return (map->isMouse) ? isMouseButtonReleasedOnce(map->mouseButton) : isKeyReleasedOnce(map->key);
+        }
+
+        float getMappingReleasedValue(Mapping* map) {
+            return isMappingReleased(map) ? 1.0f : 0.0f;
+        }
+
+        float getMappingPressedOnceValue(Mapping* map) {
+            return isMappingPressedOnce(map) ? 1.0f : 0.0f;
+        }
+
+        float getMappingPressedValue(Mapping* map) {
+            return isMappingPressed(map) ? 1.0f : 0.0f;
+        }
+
+        float getMappingReleasedOnceValue(Mapping* map) {
+            return isMappingReleasedOnce(map) ? 1.0f : 0.0f;
+        }
+
+        float getMappingReleasedAxis(Mapping* negative, Mapping* positive) {
+            return getMappingReleasedValue(positive) - getMappingReleasedValue(negative);
+        }
+
+        float getMappingPressedOnceAxis(Mapping* negative, Mapping* positive) {
+            return getMappingPressedOnceValue(positive) - getMappingPressedOnceValue(negative);
+        }
+
+        float getMappingPressedAxis(Mapping* negative, Mapping* positive) {
+            return getMappingPressedValue(positive) - getMappingPressedValue(negative);
+        }
+
+        float getMappingReleasedOnceAxis(Mapping* negative, Mapping* positive) {
+            return getMappingReleasedOnceValue(positive) - getMappingReleasedOnceValue(negative);
+        }
+
+
+    }
+
 }
