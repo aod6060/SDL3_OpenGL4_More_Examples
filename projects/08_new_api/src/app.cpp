@@ -28,8 +28,8 @@ namespace app {
 
         g_context = SDL_GL_CreateContext(g_window);
         glewInit();
-
         render::init();
+        imw::init();
 
         if(g_config->initCB) {
             g_config->initCB();
@@ -51,6 +51,8 @@ namespace app {
                 if(event.type == SDL_EVENT_QUIT) {
                     app::exit();
                 }
+
+                imw::handleEvent(&event);
 
                 if(g_config->handleEventCB) {
                     g_config->handleEventCB(&event);
@@ -75,8 +77,9 @@ namespace app {
             g_config->releaseCB();
         }
 
+        imw::release();
         render::release();
-        
+
         SDL_GL_DestroyContext(g_context);
         SDL_DestroyWindow(g_window);
         SDL_Quit();

@@ -179,4 +179,12 @@ namespace render {
     void unbindTextre(GLenum active);
 }
 
+// This is an imgui wrapper
+namespace imw {
+    void init();
+    void handleEvent(SDL_Event* e);
+    void release();
+    void renderGUI(std::function<void()> cb);
+}
+
 #endif

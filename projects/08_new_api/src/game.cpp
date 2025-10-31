@@ -20,18 +20,6 @@ namespace game {
 
 
     void init() {
-        // ImGui
-        IMGUI_CHECKVERSION();
-
-        ImGui::CreateContext();
-
-        ImGuiIO& io = ImGui::GetIO();
-
-        ImGui::StyleColorsDark();
-
-        ImGui_ImplSDL3_InitForOpenGL(app::getWindow(), app::getContext());
-        ImGui_ImplOpenGL3_Init("#version 400");
-
         // Initialize Buffer + Textures
         // Vertices
         vertices.init();
@@ -59,7 +47,6 @@ namespace game {
     }
 
     void handleEvent(SDL_Event* e) {
-        ImGui_ImplSDL3_ProcessEvent(e);
     }
 
     void update(float delta) {
@@ -96,7 +83,7 @@ namespace game {
 
         render::getMainShader()->unbind();
 
-        renderGUI([&]() {
+        imw::renderGUI([&]() {
 
             ImGui::Begin("Hello, World");
 
@@ -119,9 +106,6 @@ namespace game {
         indencies.release();
         texCoords.release();
         vertices.release();
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplSDL3_Shutdown();
-        ImGui::DestroyContext();
     }
 
     void setup(app::Config* config) {
@@ -135,113 +119,4 @@ namespace game {
         config->renderCB = render;
         config->releaseCB = release;
     }
-
-    uint32_t _create_shader(GLenum type, std::string path) {
-        uint32_t temp = glCreateShader(type);
-
-        // Load Source
-        std::ifstream in(path);
-        in.seekg(0, std::ios::end);
-        size_t fsize = in.tellg();
-        in.seekg(0, std::ios::beg);
-        std::string src;
-        src.resize(fsize);
-        in.read(src.data(), src.size());
-        in.close();
-
-        std::cout << src << "\n";
-
-        const char* c_src = src.c_str();
-
-        glShaderSource(temp, 1, &c_src, nullptr);
-
-        glCompileShader(temp);
-
-        int32_t len = 0;
-        glGetShaderiv(temp, GL_INFO_LOG_LENGTH, &len);
-
-        if(len > 0) {
-            std::string log;
-            log.resize(len);
-            glGetShaderInfoLog(temp, log.size(), nullptr, log.data());
-            std::cout << log << "\n";
-        }
-        return temp;
-    }
-
-    uint32_t _create_program(std::vector<uint32_t> shaders) {
-        uint32_t temp = glCreateProgram();
-
-        std::for_each(shaders.begin(), shaders.end(), [&](uint32_t shader) {
-            glAttachShader(temp, shader);
-        });
-        
-        glLinkProgram(temp);
-
-        int32_t len = 0;
-        glGetProgramiv(temp, GL_INFO_LOG_LENGTH, &len);
-
-        if(len > 0) {
-            std::string log;
-            log.resize(len);
-            glGetProgramInfoLog(temp, log.size(), nullptr, log.data());
-            std::cout << log << "\n";
-        }
-
-        return temp;
-    }
-
-    void _delete_program(uint32_t id, std::vector<uint32_t> shaders) {
-        std::for_each(shaders.begin(), shaders.end(), [&](uint32_t shader) {
-            glDetachShader(id, shader);
-        });
-        glDeleteProgram(id);
-    }
-
-    uint32_t _create_texture2D(std::string path) {
-        uint32_t temp = 0;
-
-        SDL_Surface* surf = IMG_Load(path.c_str());
-
-        if(surf == nullptr) {
-            std::cout << path << " wasn't found\n";
-            return 0;
-        }
-
-        glGenTextures(1, &temp);
-
-        glBindTexture(GL_TEXTURE_2D, temp);
-
-        glTexImage2D(
-            GL_TEXTURE_2D, 
-            0, 
-            GL_RGBA, 
-            surf->w, 
-            surf->h, 
-            0, 
-            GL_RGBA, 
-            GL_UNSIGNED_BYTE, 
-            surf->pixels);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        SDL_DestroySurface(surf);
-        return temp;
-    }
-
-    void renderGUI(std::function<void()> callback) {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        callback();
-        ImGui::EndFrame();
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    }
-
 }
