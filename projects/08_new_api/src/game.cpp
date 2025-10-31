@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "glm/ext/quaternion_geometric.hpp"
 #include "sys.hpp"
 
 
@@ -17,7 +18,6 @@ namespace game {
     bool rotateY = true;
     bool rotateZ = false;
     glm::vec4 color = glm::vec4(glm::vec3(100.0f, 149.0f, 237.0f) / 255.0f, 1.0f);
-
 
     void init() {
         // Initialize Buffer + Textures
