@@ -14,7 +14,7 @@
 #include "imgui/imgui_impl_sdl3.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-std::string g_caption = "06_mipmap";
+std::string g_caption = "07_imgui";
 uint32_t g_width = 1280;
 uint32_t g_height = 720;
 
